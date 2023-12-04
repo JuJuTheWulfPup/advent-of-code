@@ -1,0 +1,32 @@
+{
+  "name": "advent-of-code",
+  "version": "1.0.0",
+  "description": "My answers to the Advent of Code competition.",
+  "main": "index.ts",
+  "scripts": {
+    "dev": "ts-node-dev index.ts",
+    "dev:watch": "ts-node-dev --respawn index.ts",
+    "lint": "eslint \"src/**/*.ts\""
+  },
+  "repository": "git@github.com:JuJuTheWulfPup/advent-of-code.git",
+  "author": "JuJuTheWulfPup",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@types/node": "^17.0.23",
+    "@typescript-eslint/eslint-plugin": "^5.19.0",
+    "@typescript-eslint/parser": "^5.19.0",
+    "eslint": "^8.13.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-config-prettier": "^8.5.0",
+    "eslint-import-resolver-typescript": "^3.5.5",
+    "eslint-plugin-import": "^2.26.0",
+    "eslint-plugin-jest": "^26.1.4",
+    "eslint-plugin-prettier": "^4.0.0",
+    "eslint-plugin-spellcheck": "^0.0.19",
+    "eslint-plugin-unused-imports": "^2.0.0"
+  },
+  "dependencies": {
+    "typescript": "<5.2.0"
+  }
+}
