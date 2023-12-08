@@ -27,6 +27,7 @@
     "eslint-plugin-unused-imports": "^2.0.0"
   },
   "dependencies": {
+    "@nestjs/common": "^10.2.10",
     "typescript": "<5.2.0"
   }
 }

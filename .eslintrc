@@ -195,8 +195,12 @@
             "lang": "en_US",
             "minLength": 2,
             "skipWords": [
+              // acronyms
               "txt",
-              "utf"
+              "utf",
+              // non-spelling errors from library/method names
+              "argv",
+              "readdir"
             ]
           }
         ]
