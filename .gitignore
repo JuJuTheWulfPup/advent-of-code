@@ -1,4 +1,4 @@
 node_modules
 dist
-/src/solutions/**/index.ts
+/src/solutions/
 .vscode

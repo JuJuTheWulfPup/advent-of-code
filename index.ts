@@ -9,6 +9,9 @@ const INPUT_PATH = './src/inputs';
 function getYearSolutionPath(year: number): string {
     return `${SOLUTIONS_PATH}/${year}`;
 }
+function getYearExampleInputPath(year: number): string {
+    return `${INPUT_PATH}/${year}/example`;
+}
 function getYearInputPath(year: number): string {
     return `${INPUT_PATH}/${year}`;
 }
@@ -78,19 +81,20 @@ async function main(): Promise<void> {
     await Promise.all(solutionFileNames.map(async solutionFileName => {
         console.log(`Start of loop for ${solutionFileName}`);
 
+        // todo: make a new argument to have the ability to run against the example input instead.
         const inputFilePath = `${getYearInputPath(year)}/${solutionFileName.split('.')[0]}.txt`;
+        // const inputFilePath = `${getYearExampleInputPath(year)}/${solutionFileName.split('.')[0]}.txt`;
 
         console.log(`Reading ${inputFilePath}`);
         const input = readFileSync(inputFilePath, { encoding: 'utf8' });
-        // todo: make a new argument to have the ability to run against the example input instead.
-        // const input = readFileSync('./exampleInput.txt', { encoding: 'utf8' });
         const inputLines = input.split('\n');
 
         const solutionFilePath = `${yearSolutionPath}/${solutionFileName}`;
         console.log(`Importing ${solutionFilePath}`);
-        const { ThisSolution } = await import(solutionFilePath);
-        const solution = new ThisSolution();
-        solution.get(solution.parseLinesToModels(inputLines));
+        const { MySolution } = await import(solutionFilePath);
+        const solution = new MySolution();
+        const solutions: { partOne: number; partTwo: number } = solution.get(solution.parseLinesToModels(inputLines));
+        console.log(`Part 1: ${solutions.partOne}, Part 2: ${solutions.partTwo}`);
     }));
 }
 
