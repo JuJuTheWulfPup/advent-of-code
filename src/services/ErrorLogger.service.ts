@@ -1,6 +1,7 @@
 import { Catch, ExceptionFilter, Injectable } from '@nestjs/common';
 import { ConsoleLoggerService } from './ConsoleLogger.service';
 
+// todo: figure this out
 @Catch()
 @Injectable()
 export class ErrorFilter implements ExceptionFilter {

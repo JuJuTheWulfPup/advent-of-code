@@ -4,8 +4,8 @@
   "description": "My answers to the Advent of Code competition.",
   "main": "index.ts",
   "scripts": {
-    "dev": "ts-node-dev index.ts",
-    "dev:watch": "ts-node-dev --respawn index.ts",
+    "dev": "ts-node-dev src/main.ts",
+    "dev:watch": "ts-node-dev --respawn src/main.ts",
     "lint": "eslint \"src/**/*.ts\""
   },
   "repository": "git@github.com:JuJuTheWulfPup/advent-of-code.git",
