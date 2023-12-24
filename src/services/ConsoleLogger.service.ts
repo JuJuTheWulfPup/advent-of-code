@@ -7,6 +7,17 @@ export class ConsoleLoggerService implements LoggerService {
     private enabledLogLevels: LogLevel[] = ['log', 'debug', 'error', 'warn'];
 
     /**
+     * Set the log levels you want reported
+     * @default ['error', 'warn']
+     * @param levels
+     * @returns {LogReporterService}
+     */
+    setLogLevels(levels: LogLevel[]): ConsoleLoggerService {
+        this.enabledLogLevels = levels;
+        return this;
+    }
+
+    /**
      * Report information that might be useful
      * @param message
      * @param rest

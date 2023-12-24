@@ -9,7 +9,7 @@ export class ErrorFilter implements ExceptionFilter {
 
     catch(exception: Error): void {
         const stackTrace = exception.stack ? `\n${exception.stack}` : '';
-        console.log(`${exception.message}${stackTrace}`);
+        this.consoleLoggerService.debug(`${exception.message}${stackTrace}`);
         throw exception;
     }
 }

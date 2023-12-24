@@ -1,18 +1,20 @@
-import { YEAR_EXAMPLE_INPUT_PATH, YEAR_INPUT_PATH, YEAR_SOLUTION_PATH } from '../constants/Directories';
+import { Injectable } from '@nestjs/common';
+import { YEAR_EXAMPLE_INPUTS_PATH, YEAR_INPUTS_PATH, YEAR_SOLUTIONS_PATH } from '../constants/Directories';
 import { ConsoleLoggerService } from './ConsoleLogger.service';
 import { readFileSync, readdirSync } from 'fs';
 
 const ROOT = '../../';
-export class SolutionRunner {
-    constructor(
-        private consoleLoggerService: ConsoleLoggerService
-    ) {}
 
-    public static execute(year: number, days: number[], useExampleInput = false): void {
-        const yearInputPath = useExampleInput ? YEAR_EXAMPLE_INPUT_PATH(year) : YEAR_INPUT_PATH(year);
+@Injectable()
+export class SolutionRunner {
+    constructor(private consoleLoggerService: ConsoleLoggerService) {}
+
+    public execute(year: number, days: number[], useExampleInput = false): void {
+        const yearInputPath = useExampleInput ? YEAR_EXAMPLE_INPUTS_PATH(year) : YEAR_INPUTS_PATH(year);
         const yearDirContents = readdirSync(yearInputPath);
 
         console.log(`Looping over days: ${days}`);
+        this.consoleLoggerService.log(`Looping over days: ${days}`);
         days.forEach(async day => {
             console.log(`Day ${day}:`);
 
@@ -34,7 +36,7 @@ export class SolutionRunner {
                 const input = readFileSync(inputFilePath, { encoding: 'utf8' });
                 const inputLines = input.split('\n');
 
-                const fullSolutionFilePath = `${ROOT}${YEAR_SOLUTION_PATH(year)}/${day}.ts`;
+                const fullSolutionFilePath = `${ROOT}${YEAR_SOLUTIONS_PATH(year)}/${day}.ts`;
                 console.log(`Importing ${fullSolutionFilePath}...`);
                 // eslint-disable-next-line no-await-in-loop
                 const { MySolution } = await import(fullSolutionFilePath);
