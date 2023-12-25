@@ -1,11 +1,22 @@
 // Vendor
 import { Module } from '@nestjs/common';
-import { ConsoleLoggerModule } from './services/ConsoleLogger.module';
-import { ProgramRunner } from './services/ProgramRunner.service';
-import { SolutionRunner } from './services/SolutionRunner.service';
+import { ConsoleLoggerModule } from './services/logger/ConsoleLogger.module';
+import { SolutionRunnerService } from './services/SolutionRunner.service';
+import { ArgumentParserService } from './services/ArgumentParser.service';
+import { ErrorFilter } from './services/filter/ErrorFilter.service';
+import { ProgramRunnerServiceModule } from './services/ProgramRunner.module';
+import { ConsoleLoggerService } from './services/logger/ConsoleLogger.service';
 
 @Module({
-    imports: [ConsoleLoggerModule],
-    providers: [ProgramRunner, SolutionRunner]
+    imports: [
+        ConsoleLoggerModule,
+        ProgramRunnerServiceModule
+    ],
+    providers: [
+        ArgumentParserService,
+        ConsoleLoggerService,
+        ErrorFilter,
+        SolutionRunnerService
+    ]
 })
-export class AppModule {}
+export class GlobalAppModule {}

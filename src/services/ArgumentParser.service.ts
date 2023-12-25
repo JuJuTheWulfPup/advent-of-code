@@ -5,14 +5,15 @@ import { INPUT_PATH, SOLUTIONS_PATH, YEAR_INPUTS_PATH, YEAR_SOLUTIONS_PATH } fro
 import { InvalidYearException } from '../exceptions/InvalidYearException';
 import { InvalidDayException } from '../exceptions/InvalidDayException';
 import { SupportedArguments } from '../types/SupportedArguments';
-import { ConsoleLoggerService } from './ConsoleLogger.service';
+import { ConsoleLoggerService } from './logger/ConsoleLogger.service';
 
 @Injectable()
-export class ArgumentParser {
+export class ArgumentParserService {
     constructor(private consoleLoggerService: ConsoleLoggerService) {}
+
     /** Searches all given args prefixed with `--` for valid LogLevels, and returns the one that will enable the most logs. */
-    private static getMostVerboseLogLevel(args: string[]): LogLevel {
-        const highestLogLevelIndex = args.reduce((highestIndex, arg) => {
+    private getMostVerboseLogLevel(args: string[]): LogLevel {
+        const mostVerboseLogLevelIndex = args.reduce((highestIndex, arg) => {
             if (arg.startsWith('--')) {
                 const possibleLogLevelArg = arg.substring(2);
                 const index = LOG_LEVELS.findIndex(x => x === possibleLogLevelArg);
@@ -21,11 +22,12 @@ export class ArgumentParser {
                 }
             }
             return highestIndex;
-        }, 0);
-        return LOG_LEVELS[highestLogLevelIndex];
+        }, LOG_LEVELS.length - 1);
+        console.log('highest log level index:', mostVerboseLogLevelIndex, LOG_LEVELS[mostVerboseLogLevelIndex]);
+        return LOG_LEVELS[mostVerboseLogLevelIndex];
     }
 
-    private static getAndValidateYear(yearArg: string): number {
+    private getAndValidateYear(yearArg: string): number {
         const yearSolutionDirectories = readdirSync(SOLUTIONS_PATH);
         const yearInputDirectories = readdirSync(INPUT_PATH);
         const supportedYearValues = yearSolutionDirectories.map(yearString => Number(yearString))
@@ -38,7 +40,7 @@ export class ArgumentParser {
         if (Math.round(year) !== year && year < 0) {
             throw new InvalidYearException(yearArg, supportedYearValues, `The value was parsed as ${year}.`);
         }
-        console.log(`Year directories found for validation:\n  solutions: ${yearSolutionDirectories}\n  inputs: ${yearInputDirectories}`);
+        this.consoleLoggerService.verbose(`Year directories found for validation:\n  solutions: ${yearSolutionDirectories}\n  inputs: ${yearInputDirectories}`);
         if (!supportedYearValues.includes(year)) {
             throw new InvalidYearException(yearArg, supportedYearValues);
         }
@@ -46,7 +48,7 @@ export class ArgumentParser {
         return year;
     }
 
-    private static getAndValidateDay(dayArg: string, year: number): number | undefined {
+    private getAndValidateDay(dayArg: string, year: number): number | undefined {
         let day: number | undefined;
         let solutionFiles: string[] = [];
         let inputFiles: string[] = [];
@@ -57,7 +59,7 @@ export class ArgumentParser {
             }
             solutionFiles = readdirSync(YEAR_SOLUTIONS_PATH(year));
             inputFiles = readdirSync(YEAR_INPUTS_PATH(year));
-            console.log(`Day files found for validation: ${solutionFiles} and ${inputFiles}`);
+            this.consoleLoggerService.debug(`Day files found for validation: ${solutionFiles} and ${inputFiles}`);
             if (!solutionFiles.includes(`${day.toString()}.ts`) || !inputFiles.includes(`${day.toString()}.txt`)) {
                 throw new InvalidDayException(dayArg, `Supported values: ${solutionFiles.filter(x => inputFiles.includes(`${x.split('.')[0]}.txt`)).map(x => x.split('.')[0]).join(', ')}.`);
             }
@@ -67,18 +69,16 @@ export class ArgumentParser {
         return day;
     }
 
-    public static getAndValidateArguments(): SupportedArguments {
-        // Positional Arguments
-        const yearArg = process.argv[2];
+    public getAndValidateArguments(): SupportedArguments {
+        const positionalArguments = process.argv.filter(arg => !arg.startsWith('-'));
+        const yearArg = positionalArguments[2];
         const year = this.getAndValidateYear(yearArg);
-        const dayArg = process.argv[3];
+        const dayArg = positionalArguments[3];
         const day = this.getAndValidateDay(dayArg, year);
 
-        const remainingArgs = process.argv.slice(4);
-
-        // Non-positional Arguments
-        const useExampleInput = remainingArgs.includes('-e') || remainingArgs.includes('--example');
-        const logLevel: LogLevel = this.getMostVerboseLogLevel(remainingArgs);
+        const nonPositionalArguments = process.argv.filter(arg => arg.startsWith('-'));
+        const useExampleInput = nonPositionalArguments.includes('-e') || nonPositionalArguments.includes('--example');
+        const logLevel: LogLevel = this.getMostVerboseLogLevel(nonPositionalArguments);
 
         return { year, day, useExampleInput, logLevel };
     }

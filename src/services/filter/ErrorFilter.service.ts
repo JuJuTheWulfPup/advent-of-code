@@ -1,5 +1,5 @@
 import { Catch, ExceptionFilter, Injectable } from '@nestjs/common';
-import { ConsoleLoggerService } from './ConsoleLogger.service';
+import { ConsoleLoggerService } from '../logger/ConsoleLogger.service';
 
 // todo: figure this out
 @Catch()
@@ -9,7 +9,7 @@ export class ErrorFilter implements ExceptionFilter {
 
     catch(exception: Error): void {
         const stackTrace = exception.stack ? `\n${exception.stack}` : '';
-        this.consoleLoggerService.debug(`${exception.message}${stackTrace}`);
+        this.consoleLoggerService.debug(`MY ERROR LOGGER ${exception.message}${stackTrace}`);
         throw exception;
     }
 }

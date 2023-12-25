@@ -1,19 +1,26 @@
 import { Injectable, LogLevel, LoggerService } from '@nestjs/common';
+import { getLogLevels } from '../../constants/Logging';
 
 export type LogContent = string | { header: string; content: string | boolean | number };
 
 @Injectable()
 export class ConsoleLoggerService implements LoggerService {
-    private enabledLogLevels: LogLevel[] = ['log', 'debug', 'error', 'warn'];
+    private enabledLogLevels: LogLevel[] = getLogLevels('error');
+
+    setMostVerboseLogLevel(logLevel: LogLevel): ConsoleLoggerService {
+        this.setLogLevels(getLogLevels(logLevel));
+        return this;
+    }
 
     /**
      * Set the log levels you want reported
-     * @default ['error', 'warn']
+     * @default ['log', 'fatal', 'error']
      * @param levels
      * @returns {LogReporterService}
      */
     setLogLevels(levels: LogLevel[]): ConsoleLoggerService {
         this.enabledLogLevels = levels;
+        this.verbose(`Log Levels set to [${levels}].`);
         return this;
     }
 
@@ -64,10 +71,16 @@ export class ConsoleLoggerService implements LoggerService {
     }
 
     send(logLevel: LogLevel, message: string, ...optional): void {
-        if (logLevel === 'verbose' || this.enabledLogLevels.includes(logLevel)) {
+        console.log(this.enabledLogLevels);
+        if (this.enabledLogLevels.includes(logLevel)) {
             let fullMessage = message;
-            if (optional) {
-                fullMessage += ` (${optional.map(x => (typeof x === 'string' ? x : JSON.stringify(x))).join(', ')})\x1b[0m`;
+            if (this.enabledLogLevels.includes('verbose')) {
+                const prefixLength = Math.max(...this.enabledLogLevels.map(name => name.length));
+                const spaces = ' '.repeat(prefixLength - logLevel.length);
+                fullMessage = `${logLevel} ${spaces}-\t${fullMessage}`;
+            }
+            if (optional && optional.length > 0) {
+                fullMessage += `(${optional.map(x => (typeof x === 'string' ? x : JSON.stringify(x))).join(', ')})\x1b[0m`;
             }
             console.log(fullMessage);
         }
