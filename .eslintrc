@@ -59,7 +59,7 @@
         "max-params": "off",
         "new-cap": "off",
         "no-bitwise": "off",
-        "no-console": "off", // questionable. Original: "error"
+        "no-console": "error",
         "no-continue": "off",
         "no-empty": [
           "error",

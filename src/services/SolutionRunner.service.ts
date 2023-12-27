@@ -31,6 +31,9 @@ export class SolutionRunnerService {
 
             for (let i = 0; i < inputFilePaths.length; i++) {
                 const inputFilePath = inputFilePaths[i];
+                if (inputFilePaths.length > 1) {
+                    this.consoleLoggerService.log(`    Solution for ${inputFilePath.split('/').pop()}`);
+                }
 
                 this.consoleLoggerService.verbose(`    Reading ${inputFilePath}...`);
                 const input = readFileSync(inputFilePath, { encoding: 'utf8' });

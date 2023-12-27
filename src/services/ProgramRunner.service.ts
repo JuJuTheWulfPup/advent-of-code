@@ -18,7 +18,6 @@ export class ProgramRunnerService {
     public run(): void {
         const args: SupportedArguments = this.argumentParserService.getAndValidateArguments();
         const { year, day } = args;
-        console.log(args.logLevel);
         this.consoleLoggerService.setMostVerboseLogLevel(args.logLevel ?? 'error');
 
         this.consoleLoggerService.log(`Running Advent of Code ${year} solution${day ? ` for day ${day}.` : 's for all existing days.'}`);

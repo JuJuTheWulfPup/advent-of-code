@@ -13,17 +13,16 @@ export class ArgumentParserService {
 
     /** Searches all given args prefixed with `--` for valid LogLevels, and returns the one that will enable the most logs. */
     private getMostVerboseLogLevel(args: string[]): LogLevel {
-        const mostVerboseLogLevelIndex = args.reduce((highestIndex, arg) => {
+        const mostVerboseLogLevelIndex = args.reduce((mostVerboseIndex, arg) => {
             if (arg.startsWith('--')) {
                 const possibleLogLevelArg = arg.substring(2);
                 const index = LOG_LEVELS.findIndex(x => x === possibleLogLevelArg);
-                if (index !== -1 && highestIndex < index) {
-                    return index;
+                if (index !== -1) {
+                    return Math.min(index, mostVerboseIndex);
                 }
             }
-            return highestIndex;
+            return mostVerboseIndex;
         }, LOG_LEVELS.length - 1);
-        console.log('highest log level index:', mostVerboseLogLevelIndex, LOG_LEVELS[mostVerboseLogLevelIndex]);
         return LOG_LEVELS[mostVerboseLogLevelIndex];
     }
 

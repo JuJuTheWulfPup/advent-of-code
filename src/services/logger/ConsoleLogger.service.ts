@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Injectable, LogLevel, LoggerService } from '@nestjs/common';
 import { getLogLevels } from '../../constants/Logging';
 
@@ -71,13 +72,12 @@ export class ConsoleLoggerService implements LoggerService {
     }
 
     send(logLevel: LogLevel, message: string, ...optional): void {
-        console.log(this.enabledLogLevels);
         if (this.enabledLogLevels.includes(logLevel)) {
             let fullMessage = message;
             if (this.enabledLogLevels.includes('verbose')) {
                 const prefixLength = Math.max(...this.enabledLogLevels.map(name => name.length));
                 const spaces = ' '.repeat(prefixLength - logLevel.length);
-                fullMessage = `${logLevel} ${spaces}-\t${fullMessage}`;
+                fullMessage = `${logLevel.toUpperCase()} ${spaces}| ${fullMessage}`;
             }
             if (optional && optional.length > 0) {
                 fullMessage += `(${optional.map(x => (typeof x === 'string' ? x : JSON.stringify(x))).join(', ')})\x1b[0m`;
