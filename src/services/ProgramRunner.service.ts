@@ -34,10 +34,21 @@ export class ProgramRunnerService {
                 .sort((a, b) => a - b);
         }
 
-        this.solutionRunnerService.execute(
-            year,
-            days,
-            process.argv.includes('-e') || process.argv.includes('--example')
-        );
+        try {
+            this.solutionRunnerService.execute(
+                year,
+                days,
+                process.argv.includes('-e') || process.argv.includes('--example')
+            );
+        } catch (error) {
+            if (typeof error === 'string') {
+                this.consoleLoggerService.error(error);
+            } else if (error instanceof Error) {
+                this.consoleLoggerService.error(error.message);
+                if (error.stack) {
+                    this.consoleLoggerService.debug(error.stack);
+                }
+            }
+        }
     }
 }
