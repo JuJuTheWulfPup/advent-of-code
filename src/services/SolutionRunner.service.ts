@@ -46,7 +46,9 @@ export class SolutionRunnerService {
 
                 const solution = new MySolution();
                 const solutions: { partOne: number; partTwo: number } = solution.get(solution.parseLinesToModels(inputLines));
-                this.consoleLoggerService.log(`    Part 1: ${solutions.partOne}, Part 2: ${solutions.partTwo}`);
+                const partOneText = solutions.partOne === -1 ? 'unsolved' : solutions.partOne.toString();
+                const partTwoText = solutions.partTwo === -1 ? 'unsolved' : solutions.partTwo.toString();
+                this.consoleLoggerService.log(`    Part 1: ${partOneText}, Part 2: ${partTwoText}`);
             }
         }
     }
