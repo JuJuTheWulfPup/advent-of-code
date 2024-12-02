@@ -60,7 +60,7 @@ export class ArgumentParserService {
             inputFiles = readdirSync(YEAR_INPUTS_PATH(year));
             this.consoleLoggerService.debug(`Day files found for validation: ${solutionFiles} and ${inputFiles}`);
             if (!solutionFiles.includes(`${day.toString()}.ts`) || !inputFiles.includes(`${day.toString()}.txt`)) {
-                throw new InvalidDayException(dayArg, `Supported values: ${solutionFiles.filter(x => inputFiles.includes(`${x.split('.')[0]}.txt`)).map(x => x.split('.')[0]).join(', ')}.`);
+                throw new InvalidDayException(dayArg, `Supported values: ${solutionFiles.filter(x => inputFiles.includes(`${x.split('.')[0]}.txt`)).map(x => Number(x.split('.')[0])).sort((a, b) => a - b).join(', ')}.`);
             }
         } else {
             day = undefined;
