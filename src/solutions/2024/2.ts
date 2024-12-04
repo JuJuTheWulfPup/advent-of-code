@@ -63,6 +63,6 @@ export class MySolution implements Solution {
 
     get(models: Models): TwoSolutions {
         return { partOne: this.partOne(models), partTwo: this.partTwo(models) };
-        // Part 1: 224, Part 2: 293 is too high
+        // Part 1: 224, Part 2: 293
     }
 }

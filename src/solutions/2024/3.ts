@@ -61,6 +61,6 @@ export class MySolution implements Solution {
     }
 
     get(models: Models): TwoSolutions {
-        return { partOne: this.partOne(models.productPairs), partTwo: this.partTwo(models.enabledProductPairs) }; // Part 1: 157621318, Part 2:
+        return { partOne: this.partOne(models.productPairs), partTwo: this.partTwo(models.enabledProductPairs) }; // Part 1: 157621318, Part 2: 79845780
     }
 }
