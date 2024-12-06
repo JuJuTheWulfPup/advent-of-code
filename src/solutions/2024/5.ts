@@ -1,10 +1,16 @@
 import { Solution, TwoSolutions } from 'types/Solution';
 
+type PagesToProduce = number[];
 type PageOrderingRulesByPage = { [page: number]: PageOrder[] };
 type PageOrder = { before: number; after: number };
+type MixedPagesToProduceResult = {
+    pagesToProduce: PagesToProduce;
+    brokenPageOrderRules: PageOrder[];
+    relatedRules: PageOrder[];
+};
 type Models = {
     pageOrderingRulesByPage: PageOrderingRulesByPage;
-    pagesToProduceList: number[][];
+    pagesToProduceList: PagesToProduce[];
 };
 
 export class MySolution implements Solution {
@@ -36,51 +42,100 @@ export class MySolution implements Solution {
         return models;
     }
 
-    findPageIndex(pagesToProduce: number[], page: number): number {
+    findPageIndex(pagesToProduce: PagesToProduce, page: number): number {
         return pagesToProduce.findIndex(x => x === page);
     }
 
-    getOrderedPagesToProduceList(pagesToProduceList: number[][], pageOrderingRulesByPage: PageOrderingRulesByPage): { ordered: number[][]; mixed: number[][] } {
-        const ordered: number[][] = [];
-        const mixed: number[][] = [];
-        pagesToProduceList.forEach(pagesToProduce => {
-            let isOrdered = true;
-            for (let pageIndex = 0; pageIndex < pagesToProduce.length; pageIndex++) {
-                const pageToProduce = pagesToProduce[pageIndex];
-                const pageOrderingRules = pageOrderingRulesByPage[pageToProduce] ?? [];
-                let r = 0;
-                while (r < pageOrderingRules.length && isOrdered) {
-                    const pageOrderingRule = pageOrderingRules[r];
-                    const otherPageShouldBeBefore = pageOrderingRule.before !== pageToProduce;
-                    for (let i = 0; i < pagesToProduce.length; i++) {
-                        const otherPageIndex = this.findPageIndex(pagesToProduce, otherPageShouldBeBefore ? pageOrderingRule.before : pageOrderingRule.after);
-                        if (otherPageShouldBeBefore && otherPageIndex > pageIndex) {
-                            isOrdered = false;
+    checkOrdering(pagesToProduce: PagesToProduce, pageOrderingRulesByPage: PageOrderingRulesByPage): { isOrdered: boolean; problematicOrderingRules?: PageOrder[]; relatedRules: PageOrder[] } {
+        let isOrdered = true;
+        const problematicOrderingRules: PageOrder[] = [];
+        for (let pageIndex = 0; pageIndex < pagesToProduce.length; pageIndex++) {
+            const pageToProduce = pagesToProduce[pageIndex];
+            const pageOrderingRules = pageOrderingRulesByPage[pageToProduce] ?? [];
+            let r = 0;
+            while (r < pageOrderingRules.length && isOrdered) {
+                const pageOrderingRule = pageOrderingRules[r];
+                const otherPageShouldBeBefore = pageOrderingRule.before !== pageToProduce;
+                for (let i = 0; i < pagesToProduce.length; i++) {
+                    const otherPageIndex = this.findPageIndex(pagesToProduce, otherPageShouldBeBefore ? pageOrderingRule.before : pageOrderingRule.after);
+                    if (otherPageShouldBeBefore && otherPageIndex > pageIndex) {
+                        isOrdered = false;
+                        if (problematicOrderingRules.filter(x => x.before === pageOrderingRule.before && x.after === pageOrderingRule.after).length === 0) {
+                            problematicOrderingRules.push(pageOrderingRule);
                         }
                     }
-                    r++;
                 }
+                r++;
             }
-            if (isOrdered) {
+        }
+        return {
+            isOrdered,
+            problematicOrderingRules,
+            relatedRules:
+                pagesToProduce.reduce((list: PageOrder[], pageToProduce) => {
+                    const rules = pageOrderingRulesByPage[pageToProduce];
+                    if (rules) {
+                        list.push(...rules);
+                    }
+                    return list;
+                }, [] as PageOrder[])
+        };
+    }
+
+    getOrderedPagesToProduceList(pagesToProduceList: PagesToProduce[], pageOrderingRulesByPage: PageOrderingRulesByPage): { ordered: PagesToProduce[]; mixed: MixedPagesToProduceResult[] } {
+        const ordered: PagesToProduce[] = [];
+        const mixed: MixedPagesToProduceResult[] = [];
+        pagesToProduceList.forEach(pagesToProduce => {
+            const checkOrderingResult = this.checkOrdering(pagesToProduce, pageOrderingRulesByPage);
+            if (checkOrderingResult.isOrdered) {
                 ordered.push(pagesToProduce);
             } else {
-                mixed.push(pagesToProduce);
+                mixed.push({
+                    pagesToProduce,
+                    brokenPageOrderRules: checkOrderingResult.problematicOrderingRules ?? [],
+                    relatedRules: checkOrderingResult.relatedRules
+                });
             }
         });
         return { ordered, mixed };
     }
 
-    partOne(orderedPagesToProduceList: number[][]): number {
-        return orderedPagesToProduceList.reduce((sum, orderedPagesToProduce) => sum + orderedPagesToProduce[Math.floor(orderedPagesToProduce.length / 2)], 0);
+    sumOfMiddleValue(pagesToProduce: PagesToProduce[]): number {
+        return pagesToProduce.reduce((sum, orderedPagesToProduce) => sum + orderedPagesToProduce[Math.floor(orderedPagesToProduce.length / 2)], 0);
     }
 
-    partTwo(mixedPagesToProduceList: number[][]): number {
-        return -1;
+    sortWithRules(mixedPagesToProduceResult: MixedPagesToProduceResult): PagesToProduce {
+        return mixedPagesToProduceResult.pagesToProduce.sort((a, b) => {
+            const rule = mixedPagesToProduceResult.relatedRules
+                .find(x => [x.after, x.before].includes(a) && [x.after, x.before].includes(b));
+            if (rule) {
+                if (rule.before === a && rule.after === b) { return -1; }
+                if (rule.before === b && rule.after === a) { return 1; }
+            }
+            return 0;
+        });
+    }
+
+    fixMixedPagesToProduceList(mixedPagesToProduceResultsList: MixedPagesToProduceResult[]): PagesToProduce[] {
+        const fixedMixedList = mixedPagesToProduceResultsList.map(mixedPagesToProduceResult => {
+            const fixedMixed = this.sortWithRules(mixedPagesToProduceResult);
+            return fixedMixed;
+        });
+        return fixedMixedList;
+    }
+
+    partOne(orderedPagesToProduceList: PagesToProduce[]): number {
+        return this.sumOfMiddleValue(orderedPagesToProduceList);
+    }
+
+    partTwo(mixedPagesToProduceResultsList: MixedPagesToProduceResult[]): number {
+        const fixedMixed = this.fixMixedPagesToProduceList(mixedPagesToProduceResultsList);
+        return this.sumOfMiddleValue(fixedMixed);
     }
 
     get(models: Models): TwoSolutions {
         const pagesToProduceCategorized = this.getOrderedPagesToProduceList(models.pagesToProduceList, models.pageOrderingRulesByPage);
         return { partOne: this.partOne(pagesToProduceCategorized.ordered), partTwo: this.partTwo(pagesToProduceCategorized.mixed) };
-        // Part 1: 5166, Part 2:
+        // Part 1: 5166, Part 2: 4679
     }
 }
