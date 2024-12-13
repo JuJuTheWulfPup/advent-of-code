@@ -3,18 +3,34 @@ import { Solution, TwoSolutions } from 'types/Solution';
 
 type Stone = number;
 type Stones = number[];
-/** leaf number is the amount of stones that it turns into at [index] iterations (0 will always be 1), starting from stoneKey */
-// type Cache = {
-//     [key: Stone]: number;
-// };
 type Models = {
     stones: Stones;
 };
 
+/** index of Cache is iteration-1, while CacheLeaf is the result of that iteration */
+// type Cache = {
+//     [stone: Stone]: CacheLeaf[];
+// };
+// type CacheLeaf = {
+//     stones: Stones;
+//     count: number;
+// };
 // const cache: Cache = {
-//     0: 1,
-//     1: 1,
-//     2024: 2
+//     0: [
+//         { count: 1, stones: [1] },
+//         { count: 1, stones: [2024] },
+//         { count: 2, stones: [20, 24] },
+//         { count: 4, stones: [2, 0, 2, 4] }
+//     ],
+//     1: [
+//         { count: 1, stones: [2024] },
+//         { count: 2, stones: [20, 24] },
+//         { count: 4, stones: [2, 0, 2, 4] }
+//     ],
+//     2024: [
+//         { count: 2, stones: [20, 24] },
+//         { count: 4, stones: [2, 0, 2, 4] }
+//     ]
 // };
 
 export class MySolution implements Solution {
@@ -49,12 +65,16 @@ export class MySolution implements Solution {
         return updatedStones;
     }
 
-    // applyRulesRecursive(stone: Stone, iteration: number, maxIterations: number): number {
+    // applyRulesCached(stone: Stone, iteration: number, maxIterations: number): number {
     //     if (iteration >= maxIterations) {
     //         return 1;
     //     }
 
-    //     return this.applyRules(stone).reduce((sum, newStone) => sum + this.applyRulesRecursive(newStone, iteration + 1, maxIterations), 0);
+    //     for (let i = iteration; i < maxIterations; i++) {
+
+    //     }
+
+    //     return -1; // todo
     // }
 
     // blink2(stones: Stones, iterations: number): number {
@@ -65,7 +85,7 @@ export class MySolution implements Solution {
     //         //     updatedStones = updatedStones.flatMap(stone => this.applyRules(stone));
     //         // }
     //         // count += updatedStones.length;
-    //         count += this.applyRulesRecursive(stones[j], 0, iterations);
+    //         count += this.applyRulesCached(stones[j], 0, iterations);
     //     }
     //     return count;
     // }
