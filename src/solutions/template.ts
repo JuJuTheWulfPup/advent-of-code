@@ -9,7 +9,10 @@
 //     }
 
 //     get(models: Models): TwoSolutions {
-
-//         return { partOne: -1, partTwo: -1 }; // Part 1: , Part 2:
+//         return {
+//             partOne: -1,
+//             partTwo: -1
+//         };
+//         // Part 1: , Part 2:
 //     }
 // }

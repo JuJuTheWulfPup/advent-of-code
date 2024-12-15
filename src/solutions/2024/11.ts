@@ -7,31 +7,12 @@ type Models = {
     stones: Stones;
 };
 
-/** index of Cache is iteration-1, while CacheLeaf is the result of that iteration */
-// type Cache = {
-//     [stone: Stone]: CacheLeaf[];
-// };
-// type CacheLeaf = {
-//     stones: Stones;
-//     count: number;
-// };
-// const cache: Cache = {
-//     0: [
-//         { count: 1, stones: [1] },
-//         { count: 1, stones: [2024] },
-//         { count: 2, stones: [20, 24] },
-//         { count: 4, stones: [2, 0, 2, 4] }
-//     ],
-//     1: [
-//         { count: 1, stones: [2024] },
-//         { count: 2, stones: [20, 24] },
-//         { count: 4, stones: [2, 0, 2, 4] }
-//     ],
-//     2024: [
-//         { count: 2, stones: [20, 24] },
-//         { count: 4, stones: [2, 0, 2, 4] }
-//     ]
-// };
+type Cache = {
+    [stone: Stone]: {
+        [iterationsLeft: number]: bigint;
+    };
+};
+const cache: Cache = {};
 
 export class MySolution implements Solution {
     parseLinesToModels(lines: string[]): Models {
@@ -57,47 +38,54 @@ export class MySolution implements Solution {
         return [stone * 2024];
     }
 
-    partOne(stones: Stones): Stones {
+    partOne(stones: Stones, iterations: number): number {
         let updatedStones: Stones = [...stones];
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < iterations; i++) {
             updatedStones = updatedStones.flatMap(stone => this.applyRules(stone));
         }
-        return updatedStones;
+        return updatedStones.length;
     }
 
-    // applyRulesCached(stone: Stone, iteration: number, maxIterations: number): number {
-    //     if (iteration >= maxIterations) {
-    //         return 1;
-    //     }
+    applyRulesWithCacheRecursive(stones: Stones, iterationsLeft: number, maxIterations: number, debug = false): bigint {
+        let parentCount = BigInt(0);
+        for (let s = 0; s < stones.length; s++) {
+            const stone = stones[s];
+            if (!cache[stone]) {
+                cache[stone] = [];
+            }
+            const stoneCache = cache[stone];
+            const cachedCount = stoneCache[iterationsLeft];
 
-    //     for (let i = iteration; i < maxIterations; i++) {
+            if (iterationsLeft <= 0) {
+                parentCount++;
+                continue;
+            }
 
-    //     }
+            if (cachedCount) {
+                // found perfect cache entry, skip all computation
+                parentCount += cachedCount;
+                continue;
+            }
 
-    //     return -1; // todo
-    // }
+            const childStones = this.applyRules(stone);
+            const childrenCount: bigint = this.applyRulesWithCacheRecursive(childStones, iterationsLeft - 1, maxIterations, debug);
 
-    // blink2(stones: Stones, iterations: number): number {
-    //     let count = 0;
-    //     for (let j = 0; j < stones.length; j++) {
-    //         const updatedStones: Stones = [stones[j]];
-    //         // for (let i = 0; i < iterations; i++) {
-    //         //     updatedStones = updatedStones.flatMap(stone => this.applyRules(stone));
-    //         // }
-    //         // count += updatedStones.length;
-    //         count += this.applyRulesCached(stones[j], 0, iterations);
-    //     }
-    //     return count;
-    // }
+            cache[stone][iterationsLeft] = childrenCount;
 
-    // partTwo(stones: Stones): number {
-    //     return this.blink2(stones, 75);
-    // }
+            parentCount += childrenCount;
+        }
+        return parentCount;
+    }
+
+    partTwo(stones: Stones): BigInt {
+        return this.applyRulesWithCacheRecursive(stones, 75, 75);
+    }
 
     get(models: Models): TwoSolutions {
-        const partOneStones = this.partOne(models.stones);
-        const partOneResult = partOneStones.length;
-        /* console.log(this.blink2(models.stones, 25)); */
-        return { partOne: partOneResult, partTwo: -1 /* this.partTwo(models.stones) */ }; // Part 1: 235850, Part 2:
+        return {
+            partOne: this.partOne(models.stones, 25),
+            partTwo: this.partTwo(models.stones)
+        };
+        // Part 1: 235850, Part 2: 279903140844645
     }
 }
