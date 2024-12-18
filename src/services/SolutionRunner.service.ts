@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { YEAR_EXAMPLE_INPUTS_PATH, YEAR_INPUTS_PATH, YEAR_SOLUTIONS_PATH } from '../constants/Directories';
 import { ConsoleLoggerService } from './logger/ConsoleLogger.service';
 import { readFileSync, readdirSync } from 'fs';
+import { TwoSolutions } from 'types/Solution';
 
 const ROOT = '../../';
 
@@ -32,7 +33,7 @@ export class SolutionRunnerService {
             for (let i = 0; i < inputFilePaths.length; i++) {
                 const inputFilePath = inputFilePaths[i];
                 if (inputFilePaths.length > 1) {
-                    this.consoleLoggerService.log(`    Solution for ${inputFilePath.split('/').pop()}`);
+                    this.consoleLoggerService.log(`\n    Solution for ${inputFilePath.split('/').pop()}`);
                 }
 
                 this.consoleLoggerService.verbose(`    Reading ${inputFilePath}...`);
@@ -45,7 +46,7 @@ export class SolutionRunnerService {
                 const { MySolution } = await import(fullSolutionFilePath);
 
                 const solution = new MySolution();
-                const solutions: { partOne: number; partTwo: number } = solution.get(solution.parseLinesToModels(inputLines));
+                const solutions: TwoSolutions = solution.get(solution.parseLinesToModels(inputLines));
                 const partOneText = solutions.partOne === -1 ? 'unsolved' : solutions.partOne.toString();
                 const partTwoText = solutions.partTwo === -1 ? 'unsolved' : solutions.partTwo.toString();
                 this.consoleLoggerService.log(`      Part 1: ${partOneText}\n      Part 2: ${partTwoText}`);
